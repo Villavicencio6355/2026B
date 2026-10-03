@@ -10,12 +10,15 @@ const categorias = [
       {
         id: 1,
         titulo: "Introducción a las ecuaciones",
-        descripcion: "Conceptos básicos para comenzar a trabajar con ecuaciones.",
+        descripcion:
+          "Conceptos básicos para comenzar a trabajar con ecuaciones.",
+        articuloRelacionado: 1,
       },
       {
         id: 2,
         titulo: "Fracciones paso a paso",
         descripcion: "Aprende a sumar y restar fracciones de manera sencilla.",
+        articuloRelacionado: 2,
       },
     ],
     articulos: [
@@ -24,12 +27,14 @@ const categorias = [
         titulo: "¿Qué es una ecuación?",
         contenido:
           "Una ecuación es una igualdad matemática en la que normalmente buscamos encontrar el valor de una incógnita. Las ecuaciones pueden utilizarse para representar diferentes situaciones y resolver problemas.",
+        videoRelacionado: 1,
       },
       {
         id: 2,
         titulo: "Conceptos básicos de álgebra",
         contenido:
           "El álgebra utiliza números, símbolos y variables para representar relaciones matemáticas. Comprender estos conceptos facilita la resolución de problemas más complejos.",
+        videoRelacionado: 2,
       },
     ],
   },
@@ -41,12 +46,16 @@ const categorias = [
       {
         id: 3,
         titulo: "Introducción al sistema solar",
-        descripcion: "Conoce los principales cuerpos que forman nuestro sistema solar.",
+        descripcion:
+          "Conoce los principales cuerpos que forman nuestro sistema solar.",
+        articuloRelacionado: 1,
       },
       {
         id: 4,
         titulo: "El ciclo del agua",
-        descripcion: "Descubre cómo funciona el ciclo del agua en nuestro planeta.",
+        descripcion:
+          "Descubre cómo funciona el ciclo del agua en nuestro planeta.",
+        articuloRelacionado: 1,
       },
     ],
     articulos: [
@@ -67,17 +76,20 @@ const categorias = [
   {
     id: "historia",
     nombre: "Historia",
-    descripcion: "Artículos y recursos para conocer diferentes acontecimientos históricos.",
+    descripcion:
+      "Artículos y recursos para conocer diferentes acontecimientos históricos.",
     videos: [
       {
         id: 5,
         titulo: "Las civilizaciones antiguas",
-        descripcion: "Una introducción a algunas de las primeras grandes civilizaciones.",
+        descripcion:
+          "Una introducción a algunas de las primeras grandes civilizaciones.",
       },
       {
         id: 6,
         titulo: "La Revolución Industrial",
-        descripcion: "Conoce algunos de los cambios provocados por la Revolución Industrial.",
+        descripcion:
+          "Conoce algunos de los cambios provocados por la Revolución Industrial.",
       },
     ],
     articulos: [
@@ -127,7 +139,7 @@ function App() {
   const [mostrarResultado, setMostrarResultado] = useState(false);
 
   const categoriaActual = categorias.find(
-    (categoria) => categoria.id === categoriaSeleccionada
+    (categoria) => categoria.id === categoriaSeleccionada,
   );
 
   const abrirCategoria = (categoria) => {
@@ -141,6 +153,16 @@ function App() {
   };
 
   const abrirArticulo = (articulo) => {
+    setRecursoSeleccionado(articulo);
+    setVista("articulo");
+  };
+
+  const abrirVideoRelacionado = (video) => {
+    setRecursoSeleccionado(video);
+    setVista("video");
+  };
+
+  const abrirArticuloRelacionado = (articulo) => {
     setRecursoSeleccionado(articulo);
     setVista("articulo");
   };
@@ -163,7 +185,7 @@ function App() {
 
   const siguienteEjercicio = () => {
     setEjercicioActual((actual) =>
-      actual < ejercicios.length - 1 ? actual + 1 : 0
+      actual < ejercicios.length - 1 ? actual + 1 : 0,
     );
     setRespuesta("");
     setMostrarResultado(false);
@@ -187,8 +209,7 @@ function App() {
       recurso.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
       recurso.categoria.toLowerCase().includes(busqueda.toLowerCase());
 
-    const coincideFiltro =
-      filtro === "todos" || recurso.tipo === filtro;
+    const coincideFiltro = filtro === "todos" || recurso.tipo === filtro;
 
     return coincideBusqueda && coincideFiltro;
   });
@@ -202,20 +223,13 @@ function App() {
 
         <nav className="nav">
           <button onClick={volverInicio}>Inicio</button>
-          <button onClick={() => setVista("categorias")}>
-            Categorías
-          </button>
-          <button onClick={() => setVista("buscar")}>
-            Buscar recursos
-          </button>
-          <button onClick={() => setVista("ejercicios")}>
-            Ejercicios
-          </button>
+          <button onClick={() => setVista("categorias")}>Categorías</button>
+          <button onClick={() => setVista("buscar")}>Buscar recursos</button>
+          <button onClick={() => setVista("ejercicios")}>Ejercicios</button>
         </nav>
       </header>
 
       <main className="contenido">
-
         {/* INICIO */}
         {vista === "inicio" && (
           <>
@@ -223,13 +237,11 @@ function App() {
               <div>
                 <span className="etiqueta">RECURSOS EDUCATIVOS</span>
 
-                <h1>
-                  Aprende a tu propio ritmo.
-                </h1>
+                <h1>Aprende a tu propio ritmo.</h1>
 
                 <p>
-                  Explora videos, artículos y ejercicios educativos
-                  organizados por diferentes categorías.
+                  Explora videos, artículos y ejercicios educativos organizados
+                  por diferentes categorías.
                 </p>
 
                 <button
@@ -244,8 +256,8 @@ function App() {
                 <span>📚</span>
                 <h3>Aprendizaje accesible</h3>
                 <p>
-                  Recursos organizados para facilitar la búsqueda
-                  y consulta de contenidos.
+                  Recursos organizados para facilitar la búsqueda y consulta de
+                  contenidos.
                 </p>
               </div>
             </section>
@@ -269,17 +281,15 @@ function App() {
                       {categoria.id === "matematicas"
                         ? "∑"
                         : categoria.id === "ciencias"
-                        ? "⚗"
-                        : "⌛"}
+                          ? "⚗"
+                          : "⌛"}
                     </span>
 
                     <h3>{categoria.nombre}</h3>
 
                     <p>{categoria.descripcion}</p>
 
-                    <span className="ver-mas">
-                      Ver recursos →
-                    </span>
+                    <span className="ver-mas">Ver recursos →</span>
                   </button>
                 ))}
               </div>
@@ -294,8 +304,7 @@ function App() {
             <h1>Categorías educativas</h1>
 
             <p className="introduccion">
-              Selecciona una categoría para consultar sus videos
-              y artículos.
+              Selecciona una categoría para consultar sus videos y artículos.
             </p>
 
             <div className="grid-categorias">
@@ -309,16 +318,14 @@ function App() {
                     {categoria.id === "matematicas"
                       ? "∑"
                       : categoria.id === "ciencias"
-                      ? "⚗"
-                      : "⌛"}
+                        ? "⚗"
+                        : "⌛"}
                   </span>
 
                   <h3>{categoria.nombre}</h3>
                   <p>{categoria.descripcion}</p>
 
-                  <span className="ver-mas">
-                    Explorar →
-                  </span>
+                  <span className="ver-mas">Explorar →</span>
                 </button>
               ))}
             </div>
@@ -328,15 +335,16 @@ function App() {
         {/* CATEGORÍA */}
         {vista === "categoria" && categoriaActual && (
           <section className="pagina">
-            <button className="boton-volver" onClick={() => setVista("categorias")}>
+            <button
+              className="boton-volver"
+              onClick={() => setVista("categorias")}
+            >
               ← Volver a categorías
             </button>
 
             <span className="etiqueta">SPRINT 1</span>
             <h1>{categoriaActual.nombre}</h1>
-            <p className="introduccion">
-              {categoriaActual.descripcion}
-            </p>
+            <p className="introduccion">{categoriaActual.descripcion}</p>
 
             <div className="subseccion">
               <h2>Videos educativos</h2>
@@ -370,17 +378,16 @@ function App() {
 
               <div className="grid-recursos">
                 {categoriaActual.articulos.map((articulo) => (
-                  <article className="recurso-card articulo-card" key={articulo.id}>
-                    <div className="articulo-icono">
-                      📖
-                    </div>
+                  <article
+                    className="recurso-card articulo-card"
+                    key={articulo.id}
+                  >
+                    <div className="articulo-icono">📖</div>
 
                     <div className="recurso-contenido">
                       <span className="tipo">ARTÍCULO</span>
                       <h3>{articulo.titulo}</h3>
-                      <p>
-                        {articulo.contenido.substring(0, 100)}...
-                      </p>
+                      <p>{articulo.contenido.substring(0, 100)}...</p>
 
                       <button
                         className="boton-secundario"
@@ -418,13 +425,31 @@ function App() {
               <p>{recursoSeleccionado.descripcion}</p>
             </div>
 
-            <div className="recurso-relacionado">
-              <strong>💡 Recomendación</strong>
-              <p>
-                Después de consultar este video puedes revisar un
-                artículo relacionado para complementar el aprendizaje.
-              </p>
-            </div>
+            {categoriaActual && recursoSeleccionado.articuloRelacionado && (
+              <div className="recurso-relacionado">
+                <strong>💡 Continúa aprendiendo</strong>
+                <p>
+                  Puedes consultar un artículo relacionado con este video para
+                  complementar el tema.
+                </p>
+
+                <button
+                  className="boton-secundario"
+                  onClick={() => {
+                    const articulo = categoriaActual.articulos.find(
+                      (articulo) =>
+                        articulo.id === recursoSeleccionado.articuloRelacionado,
+                    );
+
+                    if (articulo) {
+                      abrirArticuloRelacionado(articulo);
+                    }
+                  }}
+                >
+                  Leer artículo relacionado →
+                </button>
+              </div>
+            )}
           </section>
         )}
 
@@ -452,16 +477,40 @@ function App() {
 
               <p>
                 Este contenido forma parte de los recursos educativos
-                disponibles en la plataforma y puede complementarse
-                con videos y ejercicios.
+                disponibles en la plataforma y puede complementarse con videos y
+                ejercicios.
               </p>
             </div>
 
             <div className="recurso-relacionado">
-              <strong>¿Quieres practicar?</strong>
+              <strong>💡 Continúa aprendiendo</strong>
+
               <p>
-                Puedes realizar uno de los ejercicios disponibles
-                para comprobar lo aprendido.
+                Puedes consultar un video relacionado con este artículo para
+                complementar el tema.
+              </p>
+
+              {categoriaActual && recursoSeleccionado.videoRelacionado && (
+                <button
+                  className="boton-secundario"
+                  onClick={() => {
+                    const video = categoriaActual.videos.find(
+                      (video) =>
+                        video.id === recursoSeleccionado.videoRelacionado,
+                    );
+
+                    if (video) {
+                      abrirVideoRelacionado(video);
+                    }
+                  }}
+                >
+                  Ver video relacionado →
+                </button>
+              )}
+
+              <p>
+                También puedes realizar un ejercicio para comprobar lo
+                aprendido.
               </p>
 
               <button
@@ -481,8 +530,7 @@ function App() {
             <h1>Buscar recursos</h1>
 
             <p className="introduccion">
-              Encuentra videos y artículos utilizando la búsqueda
-              y los filtros.
+              Encuentra videos y artículos utilizando la búsqueda y los filtros.
             </p>
 
             <div className="busqueda">
@@ -518,9 +566,7 @@ function App() {
             </div>
 
             <div className="resultados">
-              <h2>
-                {recursosFiltrados.length} recurso(s) encontrado(s)
-              </h2>
+              <h2>{recursosFiltrados.length} recurso(s) encontrado(s)</h2>
 
               {recursosFiltrados.length === 0 ? (
                 <div className="sin-resultados">
@@ -560,10 +606,7 @@ function App() {
         {/* EJERCICIOS */}
         {vista === "ejercicios" && (
           <section className="pagina">
-            <button
-              className="boton-volver"
-              onClick={volverInicio}
-            >
+            <button className="boton-volver" onClick={volverInicio}>
               ← Volver al inicio
             </button>
 
@@ -572,8 +615,8 @@ function App() {
             <h1>Ejercicios de práctica</h1>
 
             <p className="introduccion">
-              Comprueba lo aprendido mediante ejercicios con
-              retroalimentación inmediata.
+              Comprueba lo aprendido mediante ejercicios con retroalimentación
+              inmediata.
             </p>
 
             <div className="ejercicio">
@@ -581,9 +624,7 @@ function App() {
                 Ejercicio {ejercicioActual + 1} de {ejercicios.length}
               </div>
 
-              <h2>
-                {ejercicios[ejercicioActual].pregunta}
-              </h2>
+              <h2>{ejercicios[ejercicioActual].pregunta}</h2>
 
               <div className="opciones">
                 {ejercicios[ejercicioActual].opciones.map((opcion) => (
