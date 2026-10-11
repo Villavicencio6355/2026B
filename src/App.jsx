@@ -25,6 +25,7 @@ const categorias = [
       {
         id: 1,
         titulo: "¿Qué es una ecuación?",
+        tema: "ecuaciones",
         contenido:
           "Una ecuación es una igualdad matemática en la que normalmente buscamos encontrar el valor de una incógnita. Las ecuaciones pueden utilizarse para representar diferentes situaciones y resolver problemas.",
         videoRelacionado: 1,
@@ -32,6 +33,7 @@ const categorias = [
       {
         id: 2,
         titulo: "Conceptos básicos de álgebra",
+        tema: "algebra",
         contenido:
           "El álgebra utiliza números, símbolos y variables para representar relaciones matemáticas. Comprender estos conceptos facilita la resolución de problemas más complejos.",
         videoRelacionado: 2,
@@ -62,12 +64,14 @@ const categorias = [
       {
         id: 3,
         titulo: "Los planetas del sistema solar",
+        tema: "sistema-solar",
         contenido:
           "El sistema solar está formado por el Sol y diferentes cuerpos que orbitan a su alrededor. Entre ellos se encuentran ocho planetas con características diferentes.",
       },
       {
         id: 4,
         titulo: "Importancia del agua",
+        tema: "agua",
         contenido:
           "El agua es un recurso fundamental para los seres vivos. Su ciclo natural permite que se distribuya constantemente entre la atmósfera, la superficie y el subsuelo.",
       },
@@ -96,12 +100,14 @@ const categorias = [
       {
         id: 5,
         titulo: "Civilizaciones antiguas",
+        tema: "civilizaciones",
         contenido:
           "Las civilizaciones antiguas desarrollaron diferentes formas de organización social, política y económica. Algunas de ellas dejaron importantes aportaciones culturales y tecnológicas.",
       },
       {
         id: 6,
         titulo: "Cambios de la Revolución Industrial",
+        tema: "revolucion-industrial",
         contenido:
           "La Revolución Industrial produjo importantes transformaciones económicas y sociales, especialmente a partir del desarrollo de nuevas tecnologías y formas de producción.",
       },
@@ -112,19 +118,73 @@ const categorias = [
 const ejercicios = [
   {
     id: 1,
+    tema: "ecuaciones",
     pregunta: "¿Cuál de las siguientes opciones representa una ecuación?",
     opciones: ["2 + 5", "x + 3 = 8", "Hola mundo", "5 × 2"],
     respuesta: "x + 3 = 8",
     explicacion:
-      "Correcto. Una ecuación representa una igualdad en la que puede existir una incógnita.",
+      "Una ecuación representa una igualdad que puede incluir una incógnita.",
   },
   {
     id: 2,
+    tema: "algebra",
+    pregunta: "¿Qué representa una variable en álgebra?",
+    opciones: [
+      "Un valor que siempre es cero",
+      "Un símbolo que representa un valor",
+      "Una operación de suma",
+      "Un resultado fijo",
+    ],
+    respuesta: "Un símbolo que representa un valor",
+    explicacion:
+      "Las variables representan valores que pueden ser desconocidos o cambiar.",
+  },
+  {
+    id: 3,
+    tema: "sistema-solar",
     pregunta: "¿Cuál es el planeta más cercano al Sol?",
     opciones: ["Venus", "Marte", "Mercurio", "Júpiter"],
     respuesta: "Mercurio",
+    explicacion: "Mercurio es el planeta que se encuentra más cerca del Sol.",
+  },
+  {
+    id: 4,
+    tema: "agua",
+    pregunta:
+      "¿Cómo se llama el proceso por el que el agua líquida pasa a vapor?",
+    opciones: ["Condensación", "Evaporación", "Congelación", "Precipitación"],
+    respuesta: "Evaporación",
     explicacion:
-      "Correcto. Mercurio es el planeta que se encuentra más cerca del Sol.",
+      "La evaporación ocurre cuando el agua líquida se transforma en vapor.",
+  },
+  {
+    id: 5,
+    tema: "civilizaciones",
+    pregunta:
+      "¿Cuál fue una aportación importante de las civilizaciones antiguas?",
+    opciones: [
+      "La creación de internet",
+      "El desarrollo de sistemas de escritura",
+      "La fabricación de aviones",
+      "La exploración espacial",
+    ],
+    respuesta: "El desarrollo de sistemas de escritura",
+    explicacion:
+      "Distintas civilizaciones antiguas desarrollaron sistemas de escritura para comunicar y registrar información.",
+  },
+  {
+    id: 6,
+    tema: "revolucion-industrial",
+    pregunta: "¿Qué cambio se relaciona con la Revolución Industrial?",
+    opciones: [
+      "La desaparición de las máquinas",
+      "El crecimiento de la producción mediante máquinas",
+      "El abandono de las fábricas",
+      "El fin del comercio",
+    ],
+    respuesta: "El crecimiento de la producción mediante máquinas",
+    explicacion:
+      "La Revolución Industrial transformó la producción mediante nuevas máquinas y procesos.",
   },
 ];
 
@@ -137,10 +197,15 @@ function App() {
   const [ejercicioActual, setEjercicioActual] = useState(0);
   const [respuesta, setRespuesta] = useState("");
   const [mostrarResultado, setMostrarResultado] = useState(false);
+  const [temaEjercicios, setTemaEjercicios] = useState(null);
 
   const categoriaActual = categorias.find(
     (categoria) => categoria.id === categoriaSeleccionada,
   );
+
+  const ejerciciosDisponibles = temaEjercicios
+    ? ejercicios.filter((ejercicio) => ejercicio.tema === temaEjercicios)
+    : ejercicios;
 
   const abrirCategoria = (categoria) => {
     setCategoriaSeleccionada(categoria.id);
@@ -185,7 +250,7 @@ function App() {
 
   const siguienteEjercicio = () => {
     setEjercicioActual((actual) =>
-      actual < ejercicios.length - 1 ? actual + 1 : 0,
+      actual < ejerciciosDisponibles.length - 1 ? actual + 1 : 0,
     );
     setRespuesta("");
     setMostrarResultado(false);
@@ -515,7 +580,13 @@ function App() {
 
               <button
                 className="boton-principal"
-                onClick={() => setVista("ejercicios")}
+                onClick={() => {
+                  setTemaEjercicios(recursoSeleccionado.tema);
+                  setEjercicioActual(0);
+                  setRespuesta("");
+                  setMostrarResultado(false);
+                  setVista("ejercicios");
+                }}
               >
                 Ir a ejercicios
               </button>
@@ -619,50 +690,69 @@ function App() {
               inmediata.
             </p>
 
+            <button
+              className="boton-secundario"
+              onClick={() => {
+                setTemaEjercicios(null);
+                setEjercicioActual(0);
+                setRespuesta("");
+                setMostrarResultado(false);
+              }}
+            >
+              Ejercicio anterior
+            </button>
+
             <div className="ejercicio">
               <div className="progreso">
-                Ejercicio {ejercicioActual + 1} de {ejercicios.length}
+                Ejercicio {ejercicioActual + 1} de{" "}
+                {ejerciciosDisponibles[ejercicioActual].pregunta}
               </div>
 
-              <h2>{ejercicios[ejercicioActual].pregunta}</h2>
+              <h2>{ejerciciosDisponibles[ejercicioActual].pregunta}</h2>
 
               <div className="opciones">
-                {ejercicios[ejercicioActual].opciones.map((opcion) => (
-                  <button
-                    key={opcion}
-                    className={
-                      respuesta === opcion
-                        ? opcion === ejercicios[ejercicioActual].respuesta
-                          ? "opcion correcta"
-                          : "opcion incorrecta"
-                        : "opcion"
-                    }
-                    onClick={() => responderEjercicio(opcion)}
-                    disabled={mostrarResultado}
-                  >
-                    {opcion}
-                  </button>
-                ))}
+                {ejerciciosDisponibles[ejercicioActual].opciones.map(
+                  (opcion) => (
+                    <button
+                      key={opcion}
+                      className={
+                        respuesta === opcion
+                          ? opcion ===
+                            ejerciciosDisponibles[ejercicioActual].respuesta
+                            ? "opcion correcta"
+                            : "opcion incorrecta"
+                          : "opcion"
+                      }
+                      onClick={() => responderEjercicio(opcion)}
+                      disabled={mostrarResultado}
+                    >
+                      {opcion}
+                    </button>
+                  ),
+                )}
               </div>
 
               {mostrarResultado && (
                 <div
                   className={
-                    respuesta === ejercicios[ejercicioActual].respuesta
+                    respuesta ===
+                    ejerciciosDisponibles[ejercicioActual].respuesta
                       ? "feedback correcto"
                       : "feedback incorrecto"
                   }
                 >
                   <strong>
-                    {respuesta === ejercicios[ejercicioActual].respuesta
+                    {respuesta ===
+                    ejerciciosDisponibles[ejercicioActual].respuesta
                       ? "¡Correcto!"
                       : "Respuesta incorrecta"}
                   </strong>
 
                   <p>
-                    {respuesta === ejercicios[ejercicioActual].respuesta
-                      ? ejercicios[ejercicioActual].explicacion
-                      : `La respuesta correcta es: ${ejercicios[ejercicioActual].respuesta}.`}
+                    {respuesta ===
+                    ejerciciosDisponibles[ejercicioActual].respuesta
+                      ? ejerciciosDisponibles[ejercicioActual].explicacion
+                      : `La respuesta correcta es: ${ejerciciosDisponibles[ejercicioActual].respuesta}.`}
                   </p>
                 </div>
               )}
