@@ -1,7 +1,16 @@
 import { useState } from "react";
 import "./App.css";
 
+// =========================================================
+// Para añadir contenido:
+// - Añade videos dentro de "videos" y artículos dentro de "articulos".
+// - Cada recurso necesita un id dentro de su categoría.
+// - Relaciona videos y artículos con articuloRelacionado / videoRelacionado.
+// - El campo "tema" del artículo debe coincidir con el tema de sus ejercicios.
+// =========================================================
 const categorias = [
+  // MATEMÁTICAS
+
   {
     id: "matematicas",
     nombre: "Matemáticas",
@@ -40,6 +49,7 @@ const categorias = [
       },
     ],
   },
+  // CIENCIAS
   {
     id: "ciencias",
     nombre: "Ciencias",
@@ -50,14 +60,14 @@ const categorias = [
         titulo: "Introducción al sistema solar",
         descripcion:
           "Conoce los principales cuerpos que forman nuestro sistema solar.",
-        articuloRelacionado: 1,
+        articuloRelacionado: 3,
       },
       {
         id: 4,
         titulo: "El ciclo del agua",
         descripcion:
           "Descubre cómo funciona el ciclo del agua en nuestro planeta.",
-        articuloRelacionado: 1,
+        articuloRelacionado: 4,
       },
     ],
     articulos: [
@@ -67,6 +77,7 @@ const categorias = [
         tema: "sistema-solar",
         contenido:
           "El sistema solar está formado por el Sol y diferentes cuerpos que orbitan a su alrededor. Entre ellos se encuentran ocho planetas con características diferentes.",
+        videoRelacionado: 3,
       },
       {
         id: 4,
@@ -74,9 +85,11 @@ const categorias = [
         tema: "agua",
         contenido:
           "El agua es un recurso fundamental para los seres vivos. Su ciclo natural permite que se distribuya constantemente entre la atmósfera, la superficie y el subsuelo.",
+        videoRelacionado: 4,
       },
     ],
   },
+  // HISTORIA
   {
     id: "historia",
     nombre: "Historia",
@@ -88,12 +101,14 @@ const categorias = [
         titulo: "Las civilizaciones antiguas",
         descripcion:
           "Una introducción a algunas de las primeras grandes civilizaciones.",
+        articuloRelacionado: 5,
       },
       {
         id: 6,
         titulo: "La Revolución Industrial",
         descripcion:
           "Conoce algunos de los cambios provocados por la Revolución Industrial.",
+        articuloRelacionado: 6,
       },
     ],
     articulos: [
@@ -103,6 +118,7 @@ const categorias = [
         tema: "civilizaciones",
         contenido:
           "Las civilizaciones antiguas desarrollaron diferentes formas de organización social, política y económica. Algunas de ellas dejaron importantes aportaciones culturales y tecnológicas.",
+        videoRelacionado: 5,
       },
       {
         id: 6,
@@ -110,11 +126,17 @@ const categorias = [
         tema: "revolucion-industrial",
         contenido:
           "La Revolución Industrial produjo importantes transformaciones económicas y sociales, especialmente a partir del desarrollo de nuevas tecnologías y formas de producción.",
+        videoRelacionado: 6,
       },
     ],
   },
 ];
 
+// =========================================================
+// Para añadir un ejercicio, copia un objeto y cambia:
+// id (único), tema, pregunta, opciones, respuesta y explicacion.
+// "tema" debe coincidir con el campo tema de un artículo.
+// =========================================================
 const ejercicios = [
   {
     id: 1,
@@ -198,6 +220,7 @@ function App() {
   const [respuesta, setRespuesta] = useState("");
   const [mostrarResultado, setMostrarResultado] = useState(false);
   const [temaEjercicios, setTemaEjercicios] = useState(null);
+  const [historialRespuestas, setHistorialRespuestas] = useState({});
 
   const categoriaActual = categorias.find(
     (categoria) => categoria.id === categoriaSeleccionada,
@@ -206,6 +229,17 @@ function App() {
   const ejerciciosDisponibles = temaEjercicios
     ? ejercicios.filter((ejercicio) => ejercicio.tema === temaEjercicios)
     : ejercicios;
+
+  const ejerciciosCompletados = Object.keys(historialRespuestas).length;
+
+  const respuestasCorrectas = Object.values(historialRespuestas).filter(
+    (registro) => registro.correcta,
+  ).length;
+
+  const porcentajeAciertos =
+    ejerciciosCompletados > 0
+      ? Math.round((respuestasCorrectas / ejerciciosCompletados) * 100)
+      : 0;
 
   const abrirCategoria = (categoria) => {
     setCategoriaSeleccionada(categoria.id);
@@ -244,14 +278,43 @@ function App() {
   };
 
   const responderEjercicio = (opcion) => {
+    const ejercicio = ejerciciosDisponibles[ejercicioActual];
+
+    if (!ejercicio) return;
+
     setRespuesta(opcion);
     setMostrarResultado(true);
+
+    setHistorialRespuestas((anterior) => ({
+      ...anterior,
+      [ejercicio.id]: {
+        respuesta: opcion,
+        correcta: opcion === ejercicio.respuesta,
+      },
+    }));
   };
 
+  // Avanza solamente dentro de la lista visible (tema actual o todos los temas).
   const siguienteEjercicio = () => {
-    setEjercicioActual((actual) =>
-      actual < ejerciciosDisponibles.length - 1 ? actual + 1 : 0,
-    );
+    if (ejercicioActual < ejerciciosDisponibles.length - 1) {
+      setEjercicioActual((actual) => actual + 1);
+    }
+    setRespuesta("");
+    setMostrarResultado(false);
+  };
+
+  // Regresa al ejercicio anterior sin cambiar de tema.
+  const ejercicioAnterior = () => {
+    if (ejercicioActual > 0) {
+      setEjercicioActual((actual) => actual - 1);
+      setRespuesta("");
+      setMostrarResultado(false);
+    }
+  };
+
+  // Reinicia la lista actual sin borrar el historial de progreso.
+  const reiniciarEjercicios = () => {
+    setEjercicioActual(0);
     setRespuesta("");
     setMostrarResultado(false);
   };
@@ -290,7 +353,17 @@ function App() {
           <button onClick={volverInicio}>Inicio</button>
           <button onClick={() => setVista("categorias")}>Categorías</button>
           <button onClick={() => setVista("buscar")}>Buscar recursos</button>
-          <button onClick={() => setVista("ejercicios")}>Ejercicios</button>
+          <button
+            onClick={() => {
+              setTemaEjercicios(null);
+              setEjercicioActual(0);
+              setRespuesta("");
+              setMostrarResultado(false);
+              setVista("ejercicios");
+            }}
+          >
+            Ejercicios
+          </button>
         </nav>
       </header>
 
@@ -690,80 +763,150 @@ function App() {
               inmediata.
             </p>
 
-            <button
-              className="boton-secundario"
-              onClick={() => {
-                setTemaEjercicios(null);
-                setEjercicioActual(0);
-                setRespuesta("");
-                setMostrarResultado(false);
-              }}
-            >
-              Ejercicio anterior
-            </button>
+            {/* RESUMEN DE PROGRESO: se cuenta cada ejercicio una sola vez. */}
+            <div className="resumen-progreso">
+              <h2>Mi progreso</h2>
+              <div className="estadisticas-progreso">
+                <p>
+                  <span>Ejercicios respondidos</span>
+                  <strong>
+                    {ejerciciosCompletados} de {ejercicios.length}
+                  </strong>
+                </p>
+                <p>
+                  <span>Respuestas correctas</span>
+                  <strong>{respuestasCorrectas}</strong>
+                </p>
+                <p>
+                  <span>Porcentaje de aciertos</span>
+                  <strong>{porcentajeAciertos}%</strong>
+                </p>
+              </div>
+              <progress
+                className="barra-progreso"
+                value={ejerciciosCompletados}
+                max={ejercicios.length}
+                aria-label="Progreso general de ejercicios"
+              />
+            </div>
+
+            {/* El botón para ver todos aparece cuando se practica un tema. */}
+            {temaEjercicios && (
+              <div className="acciones-ejercicios">
+                <button
+                  className="boton-secundario"
+                  onClick={() => {
+                    setTemaEjercicios(null);
+                    setEjercicioActual(0);
+                    setRespuesta("");
+                    setMostrarResultado(false);
+                  }}
+                >
+                  Ver todos los ejercicios
+                </button>
+              </div>
+            )}
 
             <div className="ejercicio">
               <div className="progreso">
                 Ejercicio {ejercicioActual + 1} de{" "}
-                {ejerciciosDisponibles[ejercicioActual].pregunta}
+                {ejerciciosDisponibles.length}
               </div>
 
-              <h2>{ejerciciosDisponibles[ejercicioActual].pregunta}</h2>
+              {ejerciciosDisponibles[ejercicioActual] ? (
+                <>
+                  <h2>{ejerciciosDisponibles[ejercicioActual].pregunta}</h2>
 
-              <div className="opciones">
-                {ejerciciosDisponibles[ejercicioActual].opciones.map(
-                  (opcion) => (
+                  <div className="navegacion-ejercicios">
                     <button
-                      key={opcion}
-                      className={
-                        respuesta === opcion
-                          ? opcion ===
-                            ejerciciosDisponibles[ejercicioActual].respuesta
-                            ? "opcion correcta"
-                            : "opcion incorrecta"
-                          : "opcion"
-                      }
-                      onClick={() => responderEjercicio(opcion)}
-                      disabled={mostrarResultado}
+                      className="boton-secundario"
+                      onClick={ejercicioAnterior}
+                      disabled={ejercicioActual === 0}
                     >
-                      {opcion}
+                      ← Ejercicio anterior
                     </button>
-                  ),
-                )}
-              </div>
+                    <span>
+                      {temaEjercicios
+                        ? `Tema: ${temaEjercicios.replace(/-/g, " ")}`
+                        : "Todos los temas"}
+                    </span>
+                  </div>
 
-              {mostrarResultado && (
-                <div
-                  className={
-                    respuesta ===
-                    ejerciciosDisponibles[ejercicioActual].respuesta
-                      ? "feedback correcto"
-                      : "feedback incorrecto"
-                  }
-                >
-                  <strong>
-                    {respuesta ===
-                    ejerciciosDisponibles[ejercicioActual].respuesta
-                      ? "¡Correcto!"
-                      : "Respuesta incorrecta"}
-                  </strong>
+                  <div className="opciones">
+                    {ejerciciosDisponibles[ejercicioActual].opciones.map(
+                      (opcion) => (
+                        <button
+                          key={opcion}
+                          className={
+                            respuesta === opcion
+                              ? opcion ===
+                                ejerciciosDisponibles[ejercicioActual].respuesta
+                                ? "opcion correcta"
+                                : "opcion incorrecta"
+                              : "opcion"
+                          }
+                          onClick={() => responderEjercicio(opcion)}
+                          disabled={mostrarResultado}
+                        >
+                          {opcion}
+                        </button>
+                      ),
+                    )}
+                  </div>
 
-                  <p>
-                    {respuesta ===
-                    ejerciciosDisponibles[ejercicioActual].respuesta
-                      ? ejerciciosDisponibles[ejercicioActual].explicacion
-                      : `La respuesta correcta es: ${ejerciciosDisponibles[ejercicioActual].respuesta}.`}
-                  </p>
-                </div>
-              )}
+                  {mostrarResultado && (
+                    <div
+                      className={
+                        respuesta ===
+                        ejerciciosDisponibles[ejercicioActual].respuesta
+                          ? "feedback correcto"
+                          : "feedback incorrecto"
+                      }
+                    >
+                      <strong>
+                        {respuesta ===
+                        ejerciciosDisponibles[ejercicioActual].respuesta
+                          ? "¡Correcto!"
+                          : "Respuesta incorrecta"}
+                      </strong>
 
-              {mostrarResultado && (
-                <button
-                  className="boton-principal"
-                  onClick={siguienteEjercicio}
-                >
-                  Siguiente ejercicio
-                </button>
+                      <p>
+                        {respuesta ===
+                        ejerciciosDisponibles[ejercicioActual].respuesta
+                          ? ejerciciosDisponibles[ejercicioActual].explicacion
+                          : `La respuesta correcta es: ${ejerciciosDisponibles[ejercicioActual].respuesta}.`}
+                      </p>
+                    </div>
+                  )}
+
+                  {mostrarResultado &&
+                    (ejercicioActual < ejerciciosDisponibles.length - 1 ? (
+                      <button
+                        className="boton-principal"
+                        onClick={siguienteEjercicio}
+                      >
+                        Siguiente ejercicio →
+                      </button>
+                    ) : (
+                      <div className="fin-tema">
+                        <p>
+                          {temaEjercicios
+                            ? "Has terminado los ejercicios de este tema."
+                            : "Has terminado todos los ejercicios disponibles."}
+                        </p>
+                        <button
+                          className="boton-principal"
+                          onClick={reiniciarEjercicios}
+                        >
+                          Volver a empezar
+                        </button>
+                      </div>
+                    ))}
+                </>
+              ) : (
+                <p className="sin-resultados">
+                  Todavía no hay ejercicios para este tema.
+                </p>
               )}
             </div>
           </section>
