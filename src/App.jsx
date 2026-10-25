@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./App.css";
 
 // =========================================================
+// CONTENIDO EDUCATIVO
 // Para añadir contenido:
 // - Añade videos dentro de "videos" y artículos dentro de "articulos".
 // - Cada recurso necesita un id dentro de su categoría.
@@ -133,6 +134,7 @@ const categorias = [
 ];
 
 // =========================================================
+// EJERCICIOS
 // Para añadir un ejercicio, copia un objeto y cambia:
 // id (único), tema, pregunta, opciones, respuesta y explicacion.
 // "tema" debe coincidir con el campo tema de un artículo.
@@ -221,6 +223,7 @@ function App() {
   const [mostrarResultado, setMostrarResultado] = useState(false);
   const [temaEjercicios, setTemaEjercicios] = useState(null);
   const [historialRespuestas, setHistorialRespuestas] = useState({});
+  const [interesesSeleccionados, setInteresesSeleccionados] = useState([]);
 
   const categoriaActual = categorias.find(
     (categoria) => categoria.id === categoriaSeleccionada,
@@ -240,6 +243,37 @@ function App() {
     ejerciciosCompletados > 0
       ? Math.round((respuestasCorrectas / ejerciciosCompletados) * 100)
       : 0;
+
+  const cambiarInteres = (categoriaId) => {
+    setInteresesSeleccionados((intereses) =>
+      intereses.includes(categoriaId)
+        ? intereses.filter((id) => id !== categoriaId)
+        : [...intereses, categoriaId],
+    );
+  };
+
+  const recursosRecomendados = categorias
+    .filter((categoria) => interesesSeleccionados.includes(categoria.id))
+    .flatMap((categoria) => [
+      ...categoria.videos.map((video) => ({
+        ...video,
+        tipo: "video",
+        categoriaId: categoria.id,
+        categoriaNombre: categoria.nombre,
+      })),
+      ...categoria.articulos.map((articulo) => ({
+        ...articulo,
+        tipo: "articulo",
+        categoriaId: categoria.id,
+        categoriaNombre: categoria.nombre,
+      })),
+    ]);
+
+  const abrirRecursoRecomendado = (recurso) => {
+    setCategoriaSeleccionada(recurso.categoriaId);
+    setRecursoSeleccionado(recurso);
+    setVista(recurso.tipo === "video" ? "video" : "articulo");
+  };
 
   const abrirCategoria = (categoria) => {
     setCategoriaSeleccionada(categoria.id);
@@ -294,7 +328,6 @@ function App() {
     }));
   };
 
-  // Avanza solamente dentro de la lista visible (tema actual o todos los temas).
   const siguienteEjercicio = () => {
     if (ejercicioActual < ejerciciosDisponibles.length - 1) {
       setEjercicioActual((actual) => actual + 1);
@@ -303,7 +336,6 @@ function App() {
     setMostrarResultado(false);
   };
 
-  // Regresa al ejercicio anterior sin cambiar de tema.
   const ejercicioAnterior = () => {
     if (ejercicioActual > 0) {
       setEjercicioActual((actual) => actual - 1);
@@ -312,7 +344,6 @@ function App() {
     }
   };
 
-  // Reinicia la lista actual sin borrar el historial de progreso.
   const reiniciarEjercicios = () => {
     setEjercicioActual(0);
     setRespuesta("");
@@ -353,6 +384,7 @@ function App() {
           <button onClick={volverInicio}>Inicio</button>
           <button onClick={() => setVista("categorias")}>Categorías</button>
           <button onClick={() => setVista("buscar")}>Buscar recursos</button>
+          <button onClick={() => setVista("recomendaciones")}>Para ti</button>
           <button
             onClick={() => {
               setTemaEjercicios(null);
@@ -432,7 +464,108 @@ function App() {
                 ))}
               </div>
             </section>
+
+            <section className="seccion recomendacion-inicio">
+              <div className="titulo-seccion">
+                <span className="etiqueta">HU-09</span>
+                <h2>Encuentra contenido para ti</h2>
+                <p className="introduccion">
+                  Selecciona los temas que te interesan y consulta
+                  recomendaciones de artículos y videos relacionados.
+                </p>
+              </div>
+              <button
+                className="boton-principal"
+                onClick={() => setVista("recomendaciones")}
+              >
+                Elegir mis intereses
+              </button>
+            </section>
           </>
+        )}
+
+        {/* RECOMENDACIONES PERSONALIZADAS */}
+        {vista === "recomendaciones" && (
+          <section className="pagina">
+            <button className="boton-volver" onClick={volverInicio}>
+              ← Volver al inicio
+            </button>
+            <span className="etiqueta">HU-09</span>
+            <h1>Recomendaciones para ti</h1>
+            <p className="introduccion">
+              Selecciona los temas que te interesan. La plataforma mostrará
+              recursos de esas categorías y actualizará las sugerencias cuando
+              cambies tu selección.
+            </p>
+
+            <div className="panel-intereses">
+              <h2>¿Qué te interesa aprender?</h2>
+              <p>Puedes seleccionar una o varias categorías.</p>
+              <div className="opciones-intereses">
+                {categorias.map((categoria) => (
+                  <label
+                    className={`opcion-interes ${interesesSeleccionados.includes(categoria.id) ? "opcion-interes-activa" : ""}`}
+                    key={categoria.id}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={interesesSeleccionados.includes(categoria.id)}
+                      onChange={() => cambiarInteres(categoria.id)}
+                    />
+                    <span>{categoria.nombre}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {interesesSeleccionados.length === 0 ? (
+              <div className="sin-resultados mensaje-intereses">
+                Selecciona al menos un tema para ver tus recomendaciones.
+              </div>
+            ) : (
+              <div className="subseccion resultados-recomendados">
+                <h2>Recursos sugeridos ({recursosRecomendados.length})</h2>
+                <div className="grid-recursos">
+                  {recursosRecomendados.map((recurso) => (
+                    <article
+                      className="recurso-card"
+                      key={`${recurso.tipo}-${recurso.id}-${recurso.categoriaId}`}
+                    >
+                      <div
+                        className={
+                          recurso.tipo === "video"
+                            ? "mini-video"
+                            : "articulo-icono"
+                        }
+                      >
+                        <span>{recurso.tipo === "video" ? "▶" : "📖"}</span>
+                      </div>
+                      <div className="recurso-contenido">
+                        <span className="tipo">
+                          {recurso.tipo === "video" ? "VIDEO" : "ARTÍCULO"} ·{" "}
+                          {recurso.categoriaNombre}
+                        </span>
+                        <h3>{recurso.titulo}</h3>
+                        <p>
+                          {recurso.tipo === "video"
+                            ? recurso.descripcion
+                            : `${recurso.contenido.substring(0, 110)}...`}
+                        </p>
+                        <button
+                          className="boton-secundario"
+                          onClick={() => abrirRecursoRecomendado(recurso)}
+                        >
+                          {recurso.tipo === "video"
+                            ? "Ver recurso"
+                            : "Leer artículo"}
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
         )}
 
         {/* CATEGORÍAS */}
@@ -763,7 +896,7 @@ function App() {
               inmediata.
             </p>
 
-            {/* RESUMEN DE PROGRESO: se cuenta cada ejercicio una sola vez. */}
+            {/* RESUMEN DE PROGRESO */}
             <div className="resumen-progreso">
               <h2>Mi progreso</h2>
               <div className="estadisticas-progreso">

@@ -205,7 +205,9 @@ button {
   text-align: left;
   padding: 25px;
   border-radius: 15px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .categoria-card:hover {
@@ -580,7 +582,6 @@ button {
   color: #991b1b;
 }
 
-
 /* RESUMEN DE PROGRESO (HU-08) */
 .resumen-progreso {
   margin: 28px 0 22px;
@@ -763,5 +764,78 @@ button:disabled {
 
   .ejercicio {
     padding: 22px;
+  }
+}
+
+/* Selección manual de intereses y recomendaciones */
+.panel-intereses {
+  margin-top: 28px;
+  padding: 26px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+}
+
+.panel-intereses h2 {
+  margin: 0 0 8px;
+}
+
+.panel-intereses > p {
+  margin-top: 0;
+  color: #64748b;
+}
+
+.opciones-intereses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.opcion-interes {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 16px;
+  border: 1px solid #dbe1ea;
+  border-radius: 10px;
+  background: #f8fafc;
+  cursor: pointer;
+  font-weight: 700;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+.opcion-interes input {
+  accent-color: #3156d3;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.opcion-interes-activa {
+  border-color: #3156d3;
+  background: #eef2ff;
+  color: #2445b0;
+}
+
+.mensaje-intereses {
+  margin-top: 22px;
+  line-height: 1.6;
+}
+
+.recomendacion-inicio {
+  margin-bottom: 10px;
+  border-top: 1px solid #e5e7eb;
+}
+
+@media (max-width: 500px) {
+  .panel-intereses {
+    padding: 18px;
+  }
+
+  .opciones-intereses {
+    flex-direction: column;
   }
 }
