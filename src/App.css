@@ -839,3 +839,73 @@ button:disabled {
     flex-direction: column;
   }
 }
+
+/* VALORACIÓN DE RECURSOS (HU-10) */
+.panel-valoracion {
+  margin-top: 22px;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+}
+
+.panel-valoracion h2 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+
+.panel-valoracion p {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.estrellas-valoracion {
+  display: flex;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.estrella-valoracion {
+  padding: 2px;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    transform 0.15s;
+}
+
+.estrella-valoracion:hover {
+  color: #e5a000;
+  transform: scale(1.1);
+}
+
+.estrella-valoracion.estrella-activa {
+  color: #e5a000;
+}
+
+.estrella-valoracion:focus-visible {
+  outline: 2px solid #3156d3;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.panel-valoracion .texto-valoracion {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+@media (max-width: 500px) {
+  .panel-valoracion {
+    padding: 18px;
+  }
+
+  .estrella-valoracion {
+    font-size: 1.8rem;
+  }
+}

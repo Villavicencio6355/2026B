@@ -224,6 +224,15 @@ function App() {
   const [temaEjercicios, setTemaEjercicios] = useState(null);
   const [historialRespuestas, setHistorialRespuestas] = useState({});
   const [interesesSeleccionados, setInteresesSeleccionados] = useState([]);
+  const [valoraciones, setValoraciones] = useState(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem("prototipoEduValoraciones") || "{}",
+      );
+    } catch {
+      return {};
+    }
+  });
 
   const categoriaActual = categorias.find(
     (categoria) => categoria.id === categoriaSeleccionada,
@@ -243,6 +252,57 @@ function App() {
     ejerciciosCompletados > 0
       ? Math.round((respuestasCorrectas / ejerciciosCompletados) * 100)
       : 0;
+
+  const registrarValoracion = (clave, calificacion) => {
+    setValoraciones((anteriores) => {
+      const actualizadas = { ...anteriores, [clave]: calificacion };
+      localStorage.setItem(
+        "prototipoEduValoraciones",
+        JSON.stringify(actualizadas),
+      );
+      return actualizadas;
+    });
+  };
+
+  const claveValoracion = recursoSeleccionado
+    ? `${vista}-${recursoSeleccionado.id}`
+    : null;
+  const valoracionActual = claveValoracion
+    ? valoraciones[claveValoracion] || 0
+    : 0;
+
+  const bloqueValoracion = (
+    <div className="panel-valoracion">
+      <h2>Valora este recurso</h2>
+      <p>
+        ¿Qué te pareció este contenido? Puedes cambiar tu valoración después.
+      </p>
+      <div
+        className="estrellas-valoracion"
+        role="group"
+        aria-label="Calificación de 1 a 5 estrellas"
+      >
+        {[1, 2, 3, 4, 5].map((estrella) => (
+          <button
+            key={estrella}
+            type="button"
+            className={`estrella-valoracion ${estrella <= valoracionActual ? "estrella-activa" : ""}`}
+            onClick={() => registrarValoracion(claveValoracion, estrella)}
+            aria-label={`${estrella} ${estrella === 1 ? "estrella" : "estrellas"}`}
+            aria-pressed={valoracionActual === estrella}
+            title={`${estrella} ${estrella === 1 ? "estrella" : "estrellas"}`}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+      <p className="texto-valoracion" aria-live="polite">
+        {valoracionActual
+          ? `Tu valoración: ${valoracionActual} de 5 estrellas.`
+          : "Todavía no has valorado este recurso."}
+      </p>
+    </div>
+  );
 
   const cambiarInteres = (categoriaId) => {
     setInteresesSeleccionados((intereses) =>
@@ -696,6 +756,8 @@ function App() {
               <p>{recursoSeleccionado.descripcion}</p>
             </div>
 
+            {bloqueValoracion}
+
             {categoriaActual && recursoSeleccionado.articuloRelacionado && (
               <div className="recurso-relacionado">
                 <strong>💡 Continúa aprendiendo</strong>
@@ -752,6 +814,8 @@ function App() {
                 ejercicios.
               </p>
             </div>
+
+            {bloqueValoracion}
 
             <div className="recurso-relacionado">
               <strong>💡 Continúa aprendiendo</strong>
